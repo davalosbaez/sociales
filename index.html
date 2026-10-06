@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Red social del curso de Ciencias Sociales">
+  <title>sociales ⋆˙⟡ | Red social del curso</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="toast-container" aria-live="polite"></div>
+
+  <section id="auth-screen" class="auth-screen">
+    <div class="auth-card">
+      <img src="assets/banner-sociales.png" class="auth-banner" alt="Ciencias Sociales">
+      <div class="auth-content">
+        <span class="eyebrow">RED SOCIAL DEL CURSO</span>
+        <h1>sociales<span>⋆˙⟡</span></h1>
+        <p class="auth-subtitle">Un espacio para compartir, debatir, informarnos y crear comunidad.</p>
+
+        <div class="auth-tabs">
+          <button class="auth-tab active" data-auth="login">Iniciar sesión</button>
+          <button class="auth-tab" data-auth="register">Crear cuenta</button>
+        </div>
+
+        <form id="login-form" class="auth-form">
+          <label>Usuario
+            <input id="login-username" type="text" placeholder="Tu usuario" required autocomplete="username">
+          </label>
+          <label>Contraseña
+            <input id="login-password" type="password" placeholder="Tu contraseña" required autocomplete="current-password">
+          </label>
+          <button class="primary-btn" type="submit">Entrar a Sociales <span>→</span></button>
+          <small>Los datos de esta versión se guardan localmente en este navegador.</small>
+        </form>
+
+        <form id="register-form" class="auth-form hidden">
+          <label>Nombre visible
+            <input id="register-name" type="text" placeholder="Ej. María" required maxlength="30">
+          </label>
+          <label>Usuario
+            <input id="register-username" type="text" placeholder="Ej. maria_17" required pattern="[a-zA-Z0-9_]{3,18}" maxlength="18">
+          </label>
+          <label>Contraseña
+            <input id="register-password" type="password" placeholder="Mínimo 6 caracteres" required minlength="6">
+          </label>
+          <button class="primary-btn" type="submit">Crear mi cuenta <span>✦</span></button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <div id="app" class="app hidden">
+    <header class="topbar">
+      <button class="brand" data-page="feed" aria-label="Ir al inicio">
+        <span class="brand-mark">S</span>
+        <span>sociales<span>⋆˙⟡</span></span>
+      </button>
+      <div class="top-search">
+        <span>⌕</span>
+        <input id="search-input" type="search" placeholder="Buscar publicaciones, personas o noticias...">
+      </div>
+      <div class="top-actions">
+        <button class="icon-btn" id="theme-toggle" title="Cambiar tema">☼</button>
+        <button class="avatar-btn" id="header-avatar">S</button>
+      </div>
+    </header>
+
+    <div class="layout">
+      <aside class="sidebar">
+        <nav>
+          <button class="nav-item active" data-page="feed"><span>⌂</span> Inicio</button>
+          <button class="nav-item" data-page="news"><span>▤</span> Noticias</button>
+          <button class="nav-item" data-page="calendar"><span>▣</span> Calendario</button>
+          <button class="nav-item" data-page="profile"><span>◎</span> Mi perfil</button>
+        </nav>
+
+        <button class="create-side-btn" id="open-create">＋ Nueva publicación</button>
+
+        <div class="sidebar-note">
+          <div class="sparkle">✦</div>
+          <strong>Tu voz también importa.</strong>
+          <p>Compartí ideas, información y opiniones con respeto.</p>
+        </div>
+
+        <div class="sidebar-bottom">
+          <button class="nav-item" id="logout-btn"><span>↪</span> Cerrar sesión</button>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <section id="page-feed" class="page active-page">
+          <div class="page-heading">
+            <div>
+              <span class="eyebrow">PARA VOS</span>
+              <h2>Publicaciones</h2>
+              <p>Lo que está pasando en nuestra comunidad.</p>
+            </div>
+            <button class="mobile-create primary-btn" id="open-create-mobile">＋ Publicar</button>
+          </div>
+          <div id="feed-list" class="feed-list"></div>
+        </section>
+
+        <section id="page-news" class="page">
+          <div class="page-heading">
+            <div>
+              <span class="eyebrow">ACTUALIDAD</span>
+              <h2>Noticias</h2>
+              <p>Informate y compartí noticias del curso.</p>
+            </div>
+            <button class="primary-btn" id="open-news">＋ Publicar noticia</button>
+          </div>
+          <div class="news-feature">
+            <div class="news-icon">✦</div>
+            <div>
+              <strong>Tu comunidad, al día.</strong>
+              <p>Publicá anuncios, novedades, actividades y noticias que sean importantes para el curso.</p>
+            </div>
+          </div>
+          <div id="news-list" class="news-list"></div>
+        </section>
+
+        <section id="page-calendar" class="page">
+          <div class="page-heading">
+            <div>
+              <span class="eyebrow">ORGANIZACIÓN</span>
+              <h2>Calendario</h2>
+              <p>Agregá, editá y eliminá fechas importantes para todos.</p>
+            </div>
+            <button class="primary-btn" id="open-event">＋ Nueva fecha</button>
+          </div>
+          <div class="calendar-layout">
+            <div class="calendar-card">
+              <div class="calendar-toolbar">
+                <button id="prev-month" class="round-btn">‹</button>
+                <h3 id="calendar-title"></h3>
+                <button id="next-month" class="round-btn">›</button>
+              </div>
+              <div class="weekdays">
+                <span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span><span>Dom</span>
+              </div>
+              <div id="calendar-grid" class="calendar-grid"></div>
+            </div>
+            <div class="events-card">
+              <div class="card-heading">
+                <h3>Próximas fechas</h3>
+                <span>✦</span>
+              </div>
+              <div id="events-list"></div>
+            </div>
+          </div>
+        </section>
+
+        <section id="page-profile" class="page">
+          <div id="profile-view"></div>
+        </section>
+
+        <section id="page-search" class="page">
+          <div class="page-heading">
+            <div>
+              <span class="eyebrow">EXPLORAR</span>
+              <h2 id="search-title">Resultados</h2>
+              <p>Encontrá personas, publicaciones y noticias.</p>
+            </div>
+          </div>
+          <div id="search-results"></div>
+        </section>
+      </main>
+
+      <aside class="rightbar">
+        <div class="mini-profile" id="mini-profile"></div>
+        <div class="trending-card">
+          <div class="card-heading">
+            <h3>Tendencias</h3>
+            <span>↗</span>
+          </div>
+          <div class="trend"><span>#CienciasSociales</span><small>Comunidad</small></div>
+          <div class="trend"><span>#Debate</span><small>Ideas</small></div>
+          <div class="trend"><span>#CASJ</span><small>Curso</small></div>
+          <div class="trend"><span>#Noticias</span><small>Actualidad</small></div>
+        </div>
+        <p class="footer-copy">sociales ⋆˙⟡<br>Hecho para compartir ideas.</p>
+      </aside>
+    </div>
+  </div>
+
+  <div id="create-modal" class="modal hidden">
+    <div class="modal-card">
+      <button class="modal-close" data-close="create-modal">×</button>
+      <span class="eyebrow">NUEVA PUBLICACIÓN</span>
+      <h2>¿Qué querés compartir?</h2>
+      <form id="post-form">
+        <textarea id="post-text" placeholder="Escribí algo para la comunidad..." maxlength="1000" required></textarea>
+        <div id="post-media-preview" class="media-preview hidden"></div>
+        <div class="upload-row">
+          <label class="upload-btn">▧ Foto
+            <input id="post-image" type="file" accept="image/*">
+          </label>
+          <label class="upload-btn">▷ Video
+            <input id="post-video" type="file" accept="video/*">
+          </label>
+          <span id="media-name" class="media-name"></span>
+        </div>
+        <button class="primary-btn full" type="submit">Publicar ✦</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="news-modal" class="modal hidden">
+    <div class="modal-card">
+      <button class="modal-close" data-close="news-modal">×</button>
+      <span class="eyebrow">ACTUALIDAD</span>
+      <h2>Publicar una noticia</h2>
+      <form id="news-form">
+        <input id="news-title" type="text" placeholder="Título de la noticia" maxlength="100" required>
+        <textarea id="news-body" placeholder="Contá qué pasó..." maxlength="1500" required></textarea>
+        <input id="news-source" type="text" placeholder="Fuente o enlace (opcional)">
+        <button class="primary-btn full" type="submit">Publicar noticia ✦</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="event-modal" class="modal hidden">
+    <div class="modal-card small-modal">
+      <button class="modal-close" data-close="event-modal">×</button>
+      <span class="eyebrow">CALENDARIO</span>
+      <h2>Nueva fecha</h2>
+      <form id="event-form">
+        <input id="event-title" type="text" placeholder="Nombre del evento" required maxlength="80">
+        <input id="event-date" type="date" required>
+        <input id="event-time" type="time">
+        <input id="event-place" type="text" placeholder="Lugar (opcional)" maxlength="80">
+        <button class="primary-btn full" type="submit">Agregar al calendario</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="profile-modal" class="modal hidden">
+    <div class="modal-card">
+      <button class="modal-close" data-close="profile-modal">×</button>
+      <span class="eyebrow">PERSONALIZAR</span>
+      <h2>Editar mi perfil</h2>
+      <form id="profile-form">
+        <label>Nombre visible
+          <input id="profile-name" type="text" maxlength="30" required>
+        </label>
+        <label>Biografía
+          <textarea id="profile-bio" maxlength="160" placeholder="Contá algo sobre vos..."></textarea>
+        </label>
+        <label>Color de perfil
+          <input id="profile-accent" type="color" value="#16587B">
+        </label>
+        <label class="upload-avatar">Foto de perfil
+          <input id="profile-avatar" type="file" accept="image/*">
+        </label>
+        <button class="primary-btn full" type="submit">Guardar cambios</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
