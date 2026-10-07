@@ -1,3 +1,11 @@
+const SUPABASE_URL = 'https://zzejwzqdnctwjrjevgwg.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_mhaUX17rParkGQvV_5GxNw_IB9bgF1r ';
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
 const STORAGE = {
   users: 'sociales_users_v1',
   session: 'sociales_session_v1',
