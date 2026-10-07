@@ -32,6 +32,23 @@ let events = get(STORAGE.events, []);
 let currentUser = null;
 let calendarDate = new Date();
 let selectedMedia = null;
+async function loadCurrentProfile() {
+  if (!currentUser) return null;
+
+  const { data, error } = await supabaseClient
+    .from('profiles')
+    .select('*')
+    .eq('id', currentUser)
+    .single();
+
+  if (error) {
+    console.error('Error cargando perfil:', error);
+    return null;
+  }
+
+  window.currentProfile = data;
+  return data;
+}
 
 function saveAll() {
   set(STORAGE.users, users); set(STORAGE.posts, posts); set(STORAGE.news, news); set(STORAGE.events, events);
@@ -42,7 +59,9 @@ function avatarHTML(user, cls='user-avatar') {
   return `<div class="${cls}">${escapeHTML((user.name || user.username).charAt(0).toUpperCase())}</div>`;
 }
 function findUser(username) { return users.find(u => u.username === username); }
-function current() { return findUser(currentUser); }
+function current() {
+  return window.currentProfile || null;
+}
 function toast(message) {
   const t = document.createElement('div');
   t.className = 'toast';
@@ -62,42 +81,129 @@ function showAuth(type='login') {
 
 $$('.auth-tab').forEach(btn => btn.addEventListener('click', () => showAuth(btn.dataset.auth)));
 
-$('#login-form').addEventListener('submit', e => {
+$('#login-form').addEventListener('submit', async e => {
   e.preventDefault();
+
   const username = $('#login-username').value.trim().toLowerCase();
   const password = $('#login-password').value;
-  const user = findUser(username);
-  if (!user || user.password !== password) return toast('Usuario o contraseña incorrectos.');
-  currentUser = username;
-  set(STORAGE.session, username);
+
+  if (!username || !password) {
+    return toast('Completá todos los campos.');
+  }
+
+  const email = `${username}@sociales.local`;
+
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if (error) {
+    return toast('Usuario o contraseña incorrectos.');
+  }
+
+  currentUser = data.user.id;
+  await loadCurrentProfile();
   startApp();
 });
-
-$('#register-form').addEventListener('submit', e => {
+$('#register-form').addEventListener('submit', async e => {
   e.preventDefault();
+
   const name = $('#register-name').value.trim();
   const username = $('#register-username').value.trim().toLowerCase();
   const password = $('#register-password').value;
-  if (findUser(username)) return toast('Ese usuario ya existe.');
-  users.push({username, name, password, bio:'', avatar:'', accent:'#16587B', createdAt: Date.now()});
-  saveAll();
-  currentUser = username; set(STORAGE.session, username);
+
+  if (!name || !username || !password) {
+    return toast('Completá todos los campos.');
+  }
+
+  if (username.length < 3) {
+    return toast('El usuario debe tener al menos 3 caracteres.');
+  }
+
+  if (password.length < 6) {
+    return toast('La contraseña debe tener al menos 6 caracteres.');
+  }
+
+  const email = `${username}@sociales.local`;
+
+  const { data, error } = await supabaseClient.auth.signUp({
+    email,
+    password
+  });
+
+  if (error) {
+    return toast(error.message);
+  }
+
+  if (!data.user) {
+    return toast('No se pudo crear la cuenta.');
+  }
+
+  const { error: profileError } = await supabaseClient
+    .from('profiles')
+    .insert({
+      id: data.user.id,
+      username,
+      full_name: name,
+      bio: '',
+      avatar_url: '',
+      accent_color: '#16587B'
+    });
+
+  if (profileError) {
+    console.error(profileError);
+    return toast('La cuenta se creó, pero no se pudo crear el perfil.');
+  }
+
+  currentUser = data.user.id;
+  await loadCurrentProfile();
+
+  $('#register-form').reset();
   startApp();
-  toast('¡Cuenta creada! Bienvenido/a a Sociales.');
+
+  toast('¡Cuenta creada! Bienvenido/a a Sociales 💙');
 });
 
-function startApp() {
-  currentUser = get(STORAGE.session, null);
-  if (!currentUser || !findUser(currentUser)) {
-    $('#auth-screen').classList.remove('hidden'); $('#app').classList.add('hidden'); return;
+async function startApp() {
+  const { data } = await supabaseClient.auth.getSession();
+  const session = data.session;
+
+  if (!session) {
+    currentUser = null;
+    window.currentProfile = null;
+    $('#auth-screen').classList.remove('hidden');
+    $('#app').classList.add('hidden');
+    return;
   }
-  $('#auth-screen').classList.add('hidden'); $('#app').classList.remove('hidden');
-  applyUserTheme(); renderAll();
+
+  currentUser = session.user.id;
+
+  const profile = await loadCurrentProfile();
+
+  if (!profile) {
+    await supabaseClient.auth.signOut();
+    currentUser = null;
+    $('#auth-screen').classList.remove('hidden');
+    $('#app').classList.add('hidden');
+    return;
+  }
+
+  $('#auth-screen').classList.add('hidden');
+  $('#app').classList.remove('hidden');
+
+  applyUserTheme();
+  renderAll();
 }
-function logout() {
-  localStorage.removeItem(STORAGE.session);
+async function logout() {
+  await supabaseClient.auth.signOut();
+
   currentUser = null;
-  $('#app').classList.add('hidden'); $('#auth-screen').classList.remove('hidden');
+  window.currentProfile = null;
+
+  $('#app').classList.add('hidden');
+  $('#auth-screen').classList.remove('hidden');
+
   showAuth('login');
   toast('Sesión cerrada.');
 }
