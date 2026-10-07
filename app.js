@@ -337,10 +337,48 @@ async function handleMedia(file, type) {
 $('#post-image').onchange = e => { $('#post-video').value=''; handleMedia(e.target.files[0],'image'); };
 $('#post-video').onchange = e => { $('#post-image').value=''; handleMedia(e.target.files[0],'video'); };
 
-$('#post-form').onsubmit = e => {
+$('#post-form').onsubmit = async e => {
   e.preventDefault();
-  posts.push({id:uid(),username:currentUser,text:$('#post-text').value.trim(),media:selectedMedia,likes:[],comments:[],time:nowText(),createdAt:Date.now()});
-  saveAll(); closeModal('create-modal'); renderFeed(); $('#post-form').reset(); selectedMedia=null; toast('¡Publicación compartida!');
+
+  if (!currentUser) {
+    return toast('Iniciá sesión para publicar.');
+  }
+
+  const content = $('#post-text').value.trim();
+
+  if (!content && !selectedMedia) {
+    return toast('Escribí algo o agregá una imagen/video.');
+  }
+
+  let mediaUrl = '';
+  let mediaType = '';
+
+  if (selectedMedia) {
+    mediaUrl = selectedMedia.data;
+    mediaType = selectedMedia.type;
+  }
+
+  const { error } = await supabaseClient
+    .from('posts')
+    .insert({
+      user_id: currentUser,
+      content,
+      media_url: mediaUrl,
+      media_type: mediaType
+    });
+
+  if (error) {
+    console.error(error);
+    return toast('No se pudo publicar: ' + error.message);
+  }
+
+  closeModal('create-modal');
+  $('#post-form').reset();
+  selectedMedia = null;
+
+  await renderFeed();
+
+  toast('¡Publicación compartida! 💙');
 };
 
 function renderNews() {
