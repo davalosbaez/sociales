@@ -14,5 +14,3 @@ Sitio web estático para la red social del curso de Ciencias Sociales.
 - Banner original incluido en `assets/banner-sociales.png`.
 Esta versión funciona como prototipo local: los datos se guardan en `localStorage` del navegador. Por eso las cuentas y publicaciones no se sincronizan entre dispositivos ni entre compañeros.
 
-## Para convertirlo en una red social real
-Hace falta un backend con autenticación, base de datos, almacenamiento de imágenes/videos, moderación y reglas de seguridad. Una opción sencilla sería Supabase o Firebase.
