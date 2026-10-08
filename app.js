@@ -222,17 +222,34 @@ function renderAll() {
 }
 function renderHeaderAvatar() {
   const u = current();
+
+  if (!u) return;
+
   const b = $('#header-avatar');
-  if (u.avatar) { b.style.backgroundImage=`url(${u.avatar})`; b.style.backgroundSize='cover'; b.textContent=''; }
-  else { b.style.backgroundImage='none'; b.textContent=(u.name||u.username).charAt(0).toUpperCase(); }
+
+  if (u.avatar_url) {
+    b.style.backgroundImage = `url(${u.avatar_url})`;
+    b.style.backgroundSize = 'cover';
+    b.textContent = '';
+  } else {
+    b.style.backgroundImage = 'none';
+    b.textContent = (u.full_name || u.username || '?')
+      .charAt(0)
+      .toUpperCase();
+  }
 }
 function renderMiniProfile() {
   const u = current();
+
+  if (!u) return;
+
   $('#mini-profile').innerHTML = `
-    ${avatarHTML(u,'big-avatar')}
-    <h3>${escapeHTML(u.name)}</h3>
+    ${avatarHTML(u, 'big-avatar')}
+    <h3>${escapeHTML(u.full_name || u.username)}</h3>
     <p>@${escapeHTML(u.username)}<br>${escapeHTML(u.bio || 'Todavía no agregaste una bio.')}</p>
-    <button class="text-btn" id="edit-profile-side">Editar perfil →</button>`;
+    <button class="text-btn" id="edit-profile-side">Editar perfil →</button>
+  `;
+
   $('#edit-profile-side').onclick = openProfileModal;
 }
 function applyUserTheme() {
